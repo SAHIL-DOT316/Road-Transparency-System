@@ -1,0 +1,36 @@
+<%- include("partials/header") %>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Add Contractor</h2>
+
+        <% if(message){ %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <%= message %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <% if(error){ %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <form action="/api/contractors/add" method="POST">
+          <div class="mb-3">
+            <label for="name" class="form-label">Contractor Name</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Enter contractor name" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Add Contractor</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("partials/footer") %>

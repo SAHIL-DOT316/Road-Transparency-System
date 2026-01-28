@@ -1,0 +1,19 @@
+<%- include("../partials/header") %>
+
+<h3>Edit Review</h3>
+
+<form method="POST" action="/api/reviews/<%= review._id %>/edit">
+  <select name="rating" class="form-select mb-2">
+    <% for(let i=1;i<=5;i++){ %>
+      <option value="<%= i %>" <%= review.rating === i ? "selected" : "" %>>
+        <%= i %> Star
+      </option>
+    <% } %>
+  </select>
+
+  <textarea name="comment" class="form-control mb-2"><%= review.comment %></textarea>
+
+  <button class="btn btn-primary">Update</button>
+</form>
+
+<%- include("../partials/footer") %>

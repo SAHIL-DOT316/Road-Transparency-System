@@ -1,0 +1,76 @@
+<%- include("../partials/header") %>
+
+<div class="container mt-4">
+
+  <h2 class="fw-bold mb-4"><i class="fa-solid fa-road-circle-xmark"></i> Top Damaged Roads Analytics</h2>
+
+  <!-- CHART -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-body">
+      <canvas id="damagedRoadChart"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <table class="table table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Location</th>
+            <th>Contractor</th>
+            <th>Complaints</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% roads.forEach((r, i) => { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= r.location %></td>
+              <td><%= r.contractor?.name || "N/A" %></td>
+              <td><%= r.reviewCount || 0 %></td>
+              <td>
+                <span class="badge bg-danger">DAMAGED</span>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const ctx = document.getElementById('damagedRoadChart');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: <%- labels %>,
+      datasets: [{
+        label: 'Number of Complaints',
+        data: <%- data %>,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+
+<%- include("../partials/footer") %>

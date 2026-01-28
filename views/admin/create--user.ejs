@@ -1,0 +1,45 @@
+<%- include("../partials/header") %>
+
+<div class="container mt-5">
+  <div class="card col-md-6 mx-auto p-4 shadow">
+    <h3 class="mb-3 text-center">Create Officer / Contractor</h3>
+
+    <form method="POST" action="/admin/create--user">
+      <input
+        type="text"
+        name="name"
+        class="form-control mb-3"
+        placeholder="Full Name"
+        required
+      />
+
+      <input
+        type="email"
+        name="email"
+        class="form-control mb-3"
+        placeholder="Email"
+        required
+      />
+
+      <input
+        type="password"
+        name="password"
+        class="form-control mb-3"
+        placeholder="Temporary Password"
+        required
+      />
+
+      <select name="role" class="form-select mb-3" required>
+        <option value="">Select Role</option>
+        <option value="officer">Officer</option>
+        <option value="contractor">Contractor</option>
+      </select>
+
+      <button class="btn btn-danger w-100">
+        Create User
+      </button>
+    </form>
+  </div>
+</div>
+
+<%- include("../partials/footer") %>

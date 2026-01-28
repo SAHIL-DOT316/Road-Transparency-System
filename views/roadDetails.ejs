@@ -1,0 +1,261 @@
+<%- include("partials/header") %>
+
+<div class="container mt-4">
+
+  <!-- ================= ROAD HEADER ================= -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h3 class="mb-2">
+        <i class="fa-solid fa-road"></i>
+        <%= road.location %>
+      </h3>
+
+      <div class="row mt-3">
+        <div class="col-md-4">
+          <p class="mb-1"><strong>Contractor</strong></p>
+          <span class="text-primary fw-semibold"><%= road.contractor.name %></span>
+        </div>
+
+        <div class="col-md-4">
+          <p class="mb-1"><strong>Status</strong></p>
+          <span class="badge fs-6
+            <%= road.status === 'DAMAGED' ? 'bg-danger' :
+                road.status === 'COMPLETED' ? 'bg-success' :
+                road.status === 'UNDER_CONSTRUCTION' ? 'bg-warning text-dark' :
+                'bg-secondary' %>">
+            <%= road.status.replace("_"," ") %>
+          </span>
+        </div>
+
+        <div class="col-md-4">
+          <p class="mb-1"><strong>Rating</strong></p>
+          <i class="fa-solid fa-star text-warning"></i>
+          <%= (road.avgRating || 0).toFixed(1) %>
+          <small class="text-muted">(<%= road.reviewCount || 0 %> reviews)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= OFFICER UPLOAD ================= -->
+  <% if (user && user.role === "officer") { %>
+  <div class="card shadow-sm mb-4 border-primary">
+    <div class="card-header bg-primary text-white">
+      <i class="fa-solid fa-user-shield"></i> Officer Inspection Upload
+    </div>
+
+    <div class="card-body">
+      <form action="/api/road-photos/add" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="roadId" value="<%= road._id %>">
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lng" id="lng">
+
+        <div class="row g-2">
+          <div class="col-md-4">
+            <select name="status" class="form-select" required>
+              <option value="">Inspection Result</option>
+              <option value="UNDER_CONSTRUCTION">Under Construction</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="DAMAGED">Damaged</option>
+            </select>
+          </div>
+
+          <div class="col-md-5">
+            <input type="file" name="photo" class="form-control" required>
+          </div>
+
+          <div class="col-md-3">
+            <button class="btn btn-success w-100">
+              <i class="fa-solid fa-upload"></i> Upload
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- ================= OFFICER TIMELINE ================= -->
+  <h4 class="mb-3">
+    <i class="fa-solid fa-clock-rotate-left"></i> Officer Inspection Timeline
+  </h4>
+
+  <div class="row">
+    <% roadPhotos.filter(p => p.uploadedBy === "OFFICER").forEach(p => { %>
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm h-100">
+          <img src="<%= p.photo %>"
+               class="card-img-top"
+               style="height:200px; object-fit:cover">
+
+          <div class="card-body">
+            <span class="badge
+              <%= p.status === 'DAMAGED' ? 'bg-danger' :
+                  p.status === 'COMPLETED' ? 'bg-success' :
+                  'bg-warning text-dark' %>">
+              <%= p.status.replace("_"," ") %>
+            </span>
+
+            <span class="badge bg-success ms-2">
+              <i class="fa-solid fa-check-double"></i> Verified
+            </span>
+
+            <p class="text-muted mt-2 mb-0">
+              <i class="fa-solid fa-calendar-days"></i>
+              <%= new Date(p.createdAt).toDateString() %>
+            </p>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- ================= PUBLIC REVIEW FORM ================= -->
+  <% if (user && user.role === "public") { %>
+  <div class="card shadow-sm mb-4 border-success">
+    <div class="card-header bg-success text-white">
+      <i class="fa-solid fa-comment-dots"></i> Add Public Review
+    </div>
+
+    <div class="card-body">
+      <form action="/api/road-photos/public/add" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="roadId" value="<%= road._id %>">
+        <input type="hidden" name="lat" id="lat">
+        <input type="hidden" name="lng" id="lng">
+
+        <div class="row g-2">
+          <div class="col-md-3">
+            <select name="rating" class="form-select" required>
+              <option value="">Rating</option>
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★</option>
+              <option value="3">★★★</option>
+              <option value="2">★★</option>
+              <option value="1">★</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <input type="text"
+                   name="comment"
+                   class="form-control"
+                   placeholder="Share your experience">
+          </div>
+
+          <div class="col-md-3">
+            <input type="file" name="photo" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-check mt-3">
+          <input class="form-check-input" type="checkbox" name="isAnonymous" value="true">
+          <label class="form-check-label">Post anonymously</label>
+        </div>
+
+        <button class="btn btn-success mt-3">
+          <i class="fa-solid fa-paper-plane"></i> Submit Review
+        </button>
+      </form>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- ================= PUBLIC REVIEWS ================= -->
+  <h4 class="mb-3">
+    <i class="fa-solid fa-comments"></i> Public Reviews
+  </h4>
+
+ <div class="row">
+  <% reviews.forEach(r => { %>
+
+    <div class="col-md-6 mb-4">
+      <div class="card review-card shadow-sm h-100 border-0">
+
+        <!-- ===== Review Header ===== -->
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="review-avatar me-2">
+              <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div>
+              <strong class="d-block">
+                <%= r.isAnonymous ? "Anonymous Citizen" : r.userName %>
+              </strong>
+              <small class="text-muted">
+                <%= new Date(r.createdAt).toDateString() %>
+              </small>
+            </div>
+          </div>
+
+          <!-- Rating -->
+          <div class="review-stars">
+            <% for(let i=1; i<=5; i++){ %>
+              <i class="fa-star <%= i <= r.rating ? 'fa-solid text-warning' : 'fa-regular text-muted' %>"></i>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ===== Review Body ===== -->
+        <div class="card-body">
+
+          <p class="review-text">
+            <%= r.comment || "No comment provided by the citizen." %>
+          </p>
+
+          <% if (r.photoId && r.photoId.photo) { %>
+            <div class="review-photo mt-3">
+              <img src="<%= r.photoId.photo %>" class="img-fluid rounded mb-2" style="max-width:300px">
+              <span class="photo-badge">
+                <i class="fa-solid fa-camera"></i> Proof
+              </span>
+            </div>
+          <% } %>
+
+        </div>
+
+        <!-- ===== Review Footer ===== -->
+         <% if (user && (user.role === "admin" || r.userId.toString() === user.id.toString())) { %>
+  <div class="card-footer bg-white d-flex justify-content-end gap-2 border-0">
+
+    <!-- Edit (only owner) -->
+    <% if (r.userId.toString() === user.id.toString()) { %>
+      <a href="/api/reviews/<%= r._id %>/edit"
+         class="btn btn-sm btn-outline-warning">
+        <i class="fa-solid fa-pen"></i> Edit
+      </a>
+    <% } %>
+
+    <!-- Delete (owner or admin) -->
+    <form method="POST" action="/api/reviews/<%= r._id %>/delete">
+      <button class="btn btn-sm btn-outline-danger">
+        <i class="fa-solid fa-trash"></i>
+        Delete <% if (user.role === "admin") { %>(Admin)<% } %>
+      </button>
+    </form>
+
+  </div>
+<% } %>
+
+      </div>
+    </div>
+
+  <% }) %>
+</div>
+
+
+  <!-- ================= GEO LOCATION ================= -->
+  <script>
+    navigator.geolocation.getCurrentPosition(pos => {
+      document.querySelectorAll("#lat").forEach(el => el.value = pos.coords.latitude);
+      document.querySelectorAll("#lng").forEach(el => el.value = pos.coords.longitude);
+    });
+  </script>
+
+  <a href="/" class="btn btn-secondary mt-4">
+    <i class="fa-solid fa-arrow-left"></i> Back to Roads
+  </a>
+
+</div>
+
+<%- include("partials/footer") %>

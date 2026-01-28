@@ -1,0 +1,85 @@
+<%- include("partials/header") %>
+<form method="GET" action="/api/roads" class="mb-4">
+  <div class="input-group shadow-sm">
+    <input
+  type="text"
+  name="search"
+  class="form-control"
+  placeholder="Search road by location">
+
+    <button class="btn btn-primary"><i class="fa-brands fa-searchengin"></i>Search</button>
+  </div>
+</form>
+
+<div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"><i class="fa-solid fa-road"></i> Road Transparency Dashboard</h2>
+    <span class="text-muted">Total Roads: <%= roads.length %></span>
+  </div>
+
+  <% if (roads.length === 0) { %>
+    <div class="alert alert-info">
+      No roads found.
+    </div>
+  <% } %>
+
+  <div class="row g-4">
+    <% roads.forEach(r => { %>
+      <div class="col-lg-4 col-md-6">
+        <div class="card shadow-sm h-100 border-0 road-card">
+
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">
+              <i class="fa-solid fa-map-pin"></i> <%= r.location %>
+            </h5>
+
+            <p class="mb-1">
+              Contractor:
+              <span class="fw-semibold"><%= r.contractor.name %></span>
+            </p>
+
+            <p class="mb-2">
+              Status:
+              <span class="badge px-3 py-2
+                <%= r.status === 'DAMAGED' ? 'bg-danger' :
+                    r.status === 'COMPLETED' ? 'bg-success' :
+                    r.status === 'UNDER_CONSTRUCTION' ? 'bg-warning text-dark' :
+                    'bg-secondary' %>">
+                <%= r.status.replace('_', ' ') %>
+              </span>
+            </p>
+
+            <% if (r.avgRating) { %>
+              <p class="mb-2">
+                <i class="fa-solid fa-star"></i> <%= r.avgRating.toFixed(1) %> / 5
+                <small class="text-muted">
+                  (<%= r.reviewCount || 0 %> reviews)
+                </small>
+              </p>
+            <% } %>
+          </div>
+
+          <div class="card-footer bg-transparent border-0 text-end">
+            <a href="/roads/<%= r._id %>" class="btn btn-outline-primary btn-sm">
+              View Details <i class="fa-solid fa-arrow-right-long"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<style>
+  .road-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .road-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  }
+</style>
+
+<%- include("partials/footer") %>

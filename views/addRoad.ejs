@@ -1,0 +1,102 @@
+<%- include("partials/header") %>
+
+
+
+
+<h2 class="mb-4">Add New Road</h2>
+
+<% if(message){ %>
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <%= message %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<% if(error){ %>
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <%= error %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<form action="/api/roads/add" method="POST" class="row g-3" >
+  <div class="col-md-6">
+    <input type="text" name="location" class="form-control" placeholder="Road Location" required>
+  </div>
+  <div class="col-md-6">
+    <select name="contractorId" class="form-select" required>
+      <% contractors.forEach(c => { %>
+        <option value="<%= c._id %>"><%= c.name %></option>
+      <% }) %>
+    </select>
+  </div>
+  <div class="col-md-6">
+    <input type="number" name="cost" class="form-control" placeholder="Cost" required>
+  </div>
+  <div class="col-md-6">
+    <input type="number" name="warrantyYears" class="form-control" placeholder="Warranty Years" required>
+  </div>
+  <div id="map" style="height:400px;"></div>
+
+<input type="hidden" id="lat" name="lat">
+<input type="hidden" id="lng" name="lng">
+
+  <div class="col-12">
+    <button type="submit" class="btn btn-primary w-100">Add Road</button>
+  </div>
+</form>
+<<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<script>
+const map = L.map("map").setView([20.5937, 78.9629], 5);
+
+// OSM tiles
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap contributors"
+}).addTo(map);
+
+// 🔍 Search box
+const geocoder = L.Control.geocoder({
+  geocoder: L.Control.Geocoder.nominatim({
+    geocodingQueryParams: {
+      countrycodes: "in",
+      viewbox: "68.1,37.6,97.4,6.7", // India bounding box
+      bounded: 1
+    }
+  }),
+  placeholder: "Search village / road / city (India)"
+}).addTo(map);
+
+
+let marker;
+
+geocoder.on("markgeocode", function(e) {
+  const center = e.geocode.center;
+
+  map.setView(center, 16);
+
+  if (marker) map.removeLayer(marker);
+  marker = L.marker(center).addTo(map);
+
+  document.getElementById("lat").value = center.lat;
+  document.getElementById("lng").value = center.lng;
+});
+
+// 📍 Manual click also allowed
+map.on("click", function (e) {
+  if (marker) map.removeLayer(marker);
+  marker = L.marker(e.latlng).addTo(map);
+
+  document.getElementById("lat").value = e.latlng.lat;
+  document.getElementById("lng").value = e.latlng.lng;
+});
+</script>
+
+
+<%- include("partials/footer") %>

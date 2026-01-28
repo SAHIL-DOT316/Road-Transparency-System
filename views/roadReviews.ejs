@@ -1,0 +1,46 @@
+<%- include("partials/header") %>
+
+<h2 class="mb-3">Road Reviews</h2>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h5><%= road.location %></h5>
+    <p>
+      Contractor: <b><%= road.contractor.name %></b><br>
+      Avg Rating: <i class="fa-solid fa-star"></i> <%= road.avgRating.toFixed(1) %><br>
+      Status: <span class="badge bg-info"><%= road.status %></span>
+    </p>
+  </div>
+</div>
+
+<h4>All Reviews</h4>
+
+<% if (reviews.length === 0) { %>
+  <p class="text-muted">No reviews yet.</p>
+<% } %>
+
+<% reviews.forEach(r => { %>
+  <div class="card mb-3">
+    <div class="card-body">
+      <h6><i class="fa-solid fa-star"></i> Rating: <%= r.rating %>/5</h6>
+      <p><%= r.comment || "No comment" %></p>
+      <small class="text-muted">
+        Reviewed on <%= r.createdAt.toDateString() %>
+      </small>
+
+      <% if (r.photo) { %>
+        <div class="mt-2">
+          <img
+            src="/<%= r.photo %>"
+            class="img-fluid rounded"
+            style="max-width:300px"
+          >
+        </div>
+      <% } %>
+    </div>
+  </div>
+<% }) %>
+
+<a href="/" class="btn btn-secondary mt-3">⬅ Back</a>
+
+<%- include("partials/footer") %>

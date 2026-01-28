@@ -1,0 +1,115 @@
+<%- include("partials/header") %>
+
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-center bg-primary text-white">
+        <div class="card-body">
+          <h4><%= stats.totalRoads %></h4>
+          <p>Total Roads</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center bg-danger text-white">
+        <div class="card-body">
+          <h4><%= stats.damagedRoads %></h4>
+          <p>Damaged Roads</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-center bg-success text-white">
+        <div class="card-body ">
+          <h4><%= stats.totalContractors %></h4>
+          <p>Contractors</p>
+        </div>
+      </div>
+    </div>
+
+  <div class="col-md-3">
+    <div class="card text-center bg-dark text-white">
+      <div class="card-body">
+        <h6>Total Reviews</h6>
+        <h3><%= stats.totalReviews %></h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+<h4>Contractor Leaderboard</h4>
+
+<table class="table table-bordered mt-3">
+  <thead class="table-dark">
+    <tr>
+      <th>Rank</th>
+      <th>Name</th>
+      <th>Avg Rating</th>
+      <th>Reviews</th>
+      <th>Total Roads</th>
+      <th>Penalty</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% contractors.forEach((c, i) => { %>
+      <tr class="<%= c.isBlacklisted ? 'table-danger' : '' %>">
+        <td>#<%= i + 1 %></td>
+        <td>
+  <a href="/admin/contractor/<%= c._id %>"class="btn btn-sm btn-outline-warning">
+    <%= c.name %>
+  </a>
+</td>
+
+        <td><%= c.avgRating ? c.avgRating.toFixed(1) : "0.0" %></td>
+          <td><%= c.totalReviews %></td>
+        <td><%= c.totalRoads %></td>
+        <td><%= c.penaltyPoints %></td>
+        <td>
+          <span class="badge <%= c.isBlacklisted ? 'bg-danger' : 'bg-success' %>">
+            <%= c.isBlacklisted ? "Blacklisted" : "Active" %>
+          </span>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<h3>Contractor Performance</h3>
+<canvas id="contractorChart" width="800" height="400"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('contractorChart').getContext('2d');
+
+const contractorChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: <%- JSON.stringify(chartData.contractorNames) %>,
+        datasets: [
+            {
+                label: 'Average Rating',
+                data: <%- JSON.stringify(chartData.contractorRatings) %>,
+                backgroundColor: '#28a745'
+            },
+            {
+                label: 'Penalty Points',
+                data: <%- JSON.stringify(chartData.contractorPenalties) %>,
+                backgroundColor: '#dc3545'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+<%- include("partials/footer") %>

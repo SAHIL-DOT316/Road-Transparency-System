@@ -1,0 +1,41 @@
+ <%- include("partials/header") %>
+
+<h1 class="mb-4"> Contractor Leaderboard</h1>
+
+<table class="table table-bordered table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th>No:</th>
+      <th>Name</th>
+      <th>Total Roads</th>
+      <th>Status</th>
+      <th>Detail</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% contractors.forEach((c, index) => { %>
+      <tr class="<%= c.isBlacklisted ? 'table-danger' : '' %>">
+        <td><%= index + 1 %></td>
+        <td><%= c.name %></td>
+
+        <td><%= c.totalRoads %></td>
+
+        
+
+        <td>
+          <span class="badge <%= c.isBlacklisted ? 'bg-danger' : 'bg-success' %>">
+            <%= c.isBlacklisted ? "Blacklisted" : "Active" %>
+          </span>
+        </td>
+         <td>
+  <a href="/admin/contractor/<%= c._id %>"class="btn btn-sm btn-outline-warning">
+    View Detail
+  </a>
+</td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<%- include("partials/footer") %>

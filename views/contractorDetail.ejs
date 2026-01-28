@@ -1,0 +1,72 @@
+<%- include("partials/header") %>
+
+<div class="container mt-4">
+  <h2>Contractor Detail: <%= contractor.name %></h2>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <p><b>Average Rating:</b> <i class="fa-solid fa-star"></i> <%= contractor.avgRating.toFixed(1) %></p>
+      <p><b>Penalty Points:</b> <%= contractor.penaltyPoints %></p>
+      <p><b>Total Roads:</b> <%= roads.length %></p>
+      <p><b>Blacklisted:</b> <%= contractor.isBlacklisted ? "Yes" : "No" %></p>
+
+      <span class="badge <%= contractor.isBlacklisted ? 'bg-danger' : 'bg-success' %>">
+      <%= contractor.isBlacklisted ? "Blacklisted" : "Active" %>
+    </span>
+      
+    </div>
+  </div>
+    
+    
+  
+
+<h4><i class="fa-solid fa-road"></i> Roads Managed</h4>
+
+<table class="table table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Location</th>
+      <th>Status</th>
+      <th>Cost</th>
+      <th>Warranty</th>
+      <th>Rating</th>
+      <th>Reviews</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% roads.forEach(r => { %>
+      <tr>
+        <td><%= r.location %></td>
+        <td>
+          <span class="badge 
+            <%= r.status === 'DAMAGED' ? 'bg-danger' :
+                r.status === 'COMPLETED' ? 'bg-success' : 'bg-warning' %>">
+            <%= r.status %>
+          </span>
+        </td>
+        <td>₹ <%= r.cost %></td>
+        <td><%= r.warrantyYears %> yrs</td>
+        <td> <%= r.avgRating.toFixed(1) %></td>
+        <td><%= r.reviewCount %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<% if (user && user.role === "admin") { %>
+ <% if (contractor.isBlacklisted) { %>
+  <form action="/admin/contractor/<%= contractor._id %>/unblacklist" method="POST">
+    <button class="btn btn-success btn-sm">Un-Blacklist</button>
+  </form>
+<% } else { %>
+  <form action="/admin/contractor/<%= contractor._id %>/blacklist" method="POST">
+    <button class="btn btn-danger btn-sm">Blacklist</button>
+  </form>
+<% } %>
+<% } %>
+
+
+  <% if (user && user.role === "admin") { %>
+  <a href="/admin/dashboard" class="btn btn-secondary mt-3"><i class="fa-solid fa-circle-left"></i> Back to Dashboard</a>
+  <% } %>
+</div>
+<%- include("partials/footer") %>
