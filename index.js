@@ -1,32 +1,41 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const connectDB = require("./config/db");
 const path = require("path");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
+
+const connectDB = require("./config/db");
+
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// parsers
+/* =========================
+   🔥 REQUIRED FOR RENDER
+========================= */
+app.set("trust proxy", 1); // IMPORTANT for secure cookies
+
+/* =========================
+   BODY PARSERS
+========================= */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// session
-console.log("MongoStore:", MongoStore);
-
+/* =========================
+   SESSION CONFIG
+========================= */
 app.use(
   session({
     name: "road-transparency-session",
-    secret: process.env.SESSION_SECRET || "supersecretkey",
+    secret: process.env.SESSION_SECRET, // MUST be set in Render
     resave: false,
     saveUninitialized: false,
 
     cookie: {
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 🔥 14 DAYS
+      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Render support
+      secure: true,      // ✅ Render uses HTTPS
       sameSite: "lax"
     },
 
@@ -36,30 +45,52 @@ app.use(
     })
   })
 );
+
+/* =========================
+   GLOBAL USER ACCESS (EJS)
+========================= */
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
 });
 
-// view engine
+/* =========================
+   VIEW ENGINE (EJS)
+========================= */
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// static
+/* =========================
+   STATIC FILES
+========================= */
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// routes
+/* =========================
+   ROUTES
+========================= */
 app.use("/", require("./routes/auth"));
 app.use("/", require("./routes/pageRoutes"));
-app.use("/analytics", require("./routes/analyticsRoutes"));
 
 app.use("/admin", require("./routes/adminRoutes"));
+app.use("/analytics", require("./routes/analyticsRoutes"));
+
 app.use("/api/roads", require("./routes/roadRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/contractors", require("./routes/contractorRoutes"));
 app.use("/api/road-photos", require("./routes/roadPhotoRoutes"));
 
-app.listen(process.env.PORT, () =>
-  console.log(`Server running on port ${process.env.PORT}`)
-);
+/* =========================
+   404 HANDLER (LAST)
+========================= */
+app.use((req, res) => {
+  res.status(404).render("404");
+});
+
+/* =========================
+   START SERVER
+========================= */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running on port ${PORT}`);
+});
