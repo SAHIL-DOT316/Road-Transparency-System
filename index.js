@@ -18,9 +18,7 @@ app.set("trust proxy", 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* 
-   SESSION CONFIG
- */
+/*  SESSION CONFIG */
 app.use(
   session({
     name: "road-transparency-session",
@@ -31,7 +29,7 @@ app.use(
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
       httpOnly: true,
-      secure: true,      //  Render uses HTTPS
+        secure: process.env.NODE_ENV === "production",   //  Render uses HTTPS
       sameSite: "lax"
     },
 
@@ -42,29 +40,21 @@ app.use(
   })
 );
 
-/* 
-   GLOBAL USER ACCESS (EJS)
- */
+/* GLOBAL USER ACCESS (EJS)*/
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();
 });
 
-/* 
-   VIEW ENGINE (EJS)
- */
+/* VIEW ENGINE (EJS)*/
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-/* 
-   STATIC FILES
-*/
+/* STATIC FILES*/
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/* 
-   ROUTES
- */
+/* ROUTES*/
 app.use("/", require("./routes/auth"));
 app.use("/", require("./routes/pageRoutes"));
 
